@@ -48,4 +48,164 @@
     color: #ff6f61; /* Active link color */
     border-bottom: 2px solid #ff6f61; /* Add a border under active link */
   }
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #333;
+  }
   
+  .navbar {
+    display: flex;
+  }
+  
+  .nav-list {
+    display: flex;
+    list-style-type: none;
+  }
+  
+  .nav-item {
+    margin: 0 15px;
+  }
+  
+  .nav-link {
+    color: white;
+    text-decoration: none;
+  }
+  
+  .nav-link.active {
+    font-weight: bold;
+  }
+  
+  .user-info {
+    display: flex;
+    align-items: center;
+    color: white;
+  }
+  
+  .user-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-right: 10px;
+  }
+  
+  .username {
+    font-size: 16px;
+  }
+  .header {
+    display: grid;
+    grid-template-columns: 1fr auto; /* Make navbar on the left and user-info on the right */
+    justify-items: start;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #333;
+  }
+  
+  .navbar {
+    display: flex;
+  }
+  
+  .nav-list {
+    display: flex;
+    list-style-type: none;
+  }
+  
+  .nav-item {
+    margin: 0 15px;
+  }
+  
+  .nav-link {
+    color: white;
+    text-decoration: none;
+  }
+  
+  .nav-link.active {
+    font-weight: bold;
+  }
+  
+  .user-info {
+    display: flex;
+    align-items: center;
+    color: white;
+    margin-left: 100px; /* Add margin-left for username */
+  }
+  
+  .user-icon {
+    font-size: 30px;
+    margin-right: 10px;
+  }
+  
+  .username {
+    font-size: 16px;
+  }
+  /* Header Styles */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #333;
+  color: white;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.navbar {
+  display: flex;
+  gap: 30px; /* Spacing between navigation links */
+}
+
+.nav-list {
+  list-style-type: none;
+  display: flex;
+  gap: 20px;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-item {
+  font-size: 16px;
+}
+
+.nav-link {
+  color: white;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  color: #ffcc00;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.username {
+  font-size: 16px;
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    align-items: center;
+  }
+  .nav-list {
+    flex-direction: column;
+    align-items: center;
+  }
+  .nav-item {
+    margin: 10px 0;
+  }
+}

@@ -33,7 +33,7 @@ app.use(passport.session());
 app.use('/auth', authRoutes);
 app.use('/category', categoryRoutes);
 app.use('/api', videoCategoryRoutes);
-app.use('/api/history-videos', historyVideoRoutes);
+app.use('/history', historyVideoRoutes);
 
 // MongoDB connection and server startup
 const connectToDatabase = async () => {

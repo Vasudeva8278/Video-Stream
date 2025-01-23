@@ -1,143 +1,136 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // Import for routing
+import axios from 'axios';
+import { jwtDecode } from 'jwt-decode'; // Correct import for decoding JWT
 
-const Login = ({ setIsAuthenticated }) => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const navigate = useNavigate(); // Initialize navigate
+const Login = ({ setIsAuthenticated, setEmail }) => {
+  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [errorMessage, setErrorMessage] = useState(''); // For error handling
+  const navigate = useNavigate(); // Hook for navigation
 
-  const handleLogin = async (e) => {
+  // Handle input changes
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  // Handle form submission
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
-      const response = await fetch("http://localhost:5000/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      // Send login request
+      const response = await axios.post('http://localhost:5000/auth/login', formData);
+      console.log('Login Response:', response.data);
 
-      const result = await response.json();
+      // Decode the JWT token to get user details
+      const decodedToken = jwtDecode(response.data.token);
 
-      if (response.ok) {
-        // Store JWT token and user ID in local storage
-        localStorage.setItem("token", result.token); // Assuming the token is returned in result.token
-        localStorage.setItem("userId", result.userId); // Assuming the user ID is returned in result.userId
+      // Store the token and email in localStorage
+      localStorage.setItem('email', decodedToken.email);
+      localStorage.setItem('jwtToken', response.data.token);
 
-        alert("Login successful!");
-        console.log("User data:", result);
+      // Update authentication state and email
+      if (setIsAuthenticated) setIsAuthenticated(true);
+      if (setEmail) setEmail(decodedToken.email);
 
-        // Set authentication status to true
-        setIsAuthenticated(true);
-
-        // Redirect to the home page or dashboard
-        navigate("/"); // Adjust to the path of your home page
-      } else {
-        alert("Error logging in: " + result.message);
-      }
+      // Navigate to the home/dashboard page
+      navigate('/');
     } catch (error) {
-      console.error("Error:", error);
-      alert("An error occurred. Please try again.");
+      console.error('Login failed:', error);
+      setErrorMessage('Invalid email or password. Please try again.'); // Display error message
     }
   };
 
-  const navigateToSignUp = () => {
-    console.log("Navigating to Sign-Up page");
-    navigate("/signup"); // Use navigate instead of window.location.href
+  // Redirect to the sign-in page
+  const handleSignInRedirect = () => {
+    navigate('/signin'); // Navigate to the sign-in route
   };
 
   return (
     <div
       style={{
-        height: "100vh",
-        width: "100vw",
-        backgroundImage:
-          "url('https://img.freepik.com/premium-photo/video-game-is-set-be-released-year-june_605423-136442.jpg?w=1060')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100vh',
+        backgroundImage: `url('https://www.futureanthem.com/hubfs/0425_Netflix_Netflix_3x2.webp')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
       }}
     >
       <div
         style={{
-          backgroundColor: "rgba(0, 0, 0, 0.8)",
-          padding: "30px",
-          borderRadius: "10px",
-          width: "400px",
-          textAlign: "center",
-          color: "white",
+          padding: '20px',
+          maxWidth: '400px',
+          background: 'rgba(0, 0, 0, 0.6)', // Semi-transparent black background
+          backdropFilter: 'blur(10px)', // Apply blur effect
+          borderRadius: '10px',
+          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.2)', // Optional shadow for depth
         }}
       >
-        <h2 style={{ marginBottom: "20px" }}>Login</h2>
-        <form onSubmit={handleLogin}>
-          <div style={{ marginBottom: "15px" }}>
-            <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              style={{
-                width: "100%",
-                padding: "10px",
-                borderRadius: "5px",
-                border: "none",
-                fontSize: "16px",
-              }}
-            />
-          </div>
-          <div style={{ marginBottom: "20px" }}>
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              style={{
-                width: "100%",
-                padding: "10px",
-                borderRadius: "5px",
-                border: "none",
-                fontSize: "16px",
-              }}
-            />
-          </div>
+        <form onSubmit={handleSubmit}>
+          <h2 style={{ color: 'white' }}>Login</h2>
+          {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+            style={{
+              width: '100%',
+              padding: '10px',
+              marginBottom: '10px',
+              borderRadius: '5px',
+              backgroundColor: 'rgba(255, 255, 255, 0.8)', // Light input background
+              border: '1px solid #ccc',
+            }}
+          />
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            value={formData.password}
+            onChange={handleChange}
+            required
+            style={{
+              width: '100%',
+              padding: '10px',
+              marginBottom: '10px',
+              borderRadius: '5px',
+              backgroundColor: 'rgba(255, 255, 255, 0.8)', // Light input background
+              border: '1px solid #ccc',
+            }}
+          />
           <button
             type="submit"
             style={{
-              width: "100%",
-              padding: "10px",
-              borderRadius: "5px",
-              border: "none",
-              backgroundColor: "#007BFF",
-              color: "white",
-              fontSize: "16px",
-              fontWeight: "bold",
-              cursor: "pointer",
+              width: '100%',
+              padding: '10px',
+              backgroundColor: '#007bff',
+              color: 'white',
+              border: 'none',
+              borderRadius: '5px',
+              cursor: 'pointer',
             }}
           >
             Login
           </button>
         </form>
         <button
-          onClick={navigateToSignUp}
           style={{
-            marginTop: "20px",
-            width: "100%",
-            padding: "10px",
-            borderRadius: "5px",
-            border: "none",
-            backgroundColor: "#28a745",
-            color: "white",
-            fontSize: "16px",
-            fontWeight: "bold",
-            cursor: "pointer",
+            marginTop: '10px',
+            backgroundColor: 'transparent',
+            border: 'none',
+            color: 'blue',
+            textDecoration: 'underline',
+            cursor: 'pointer',
           }}
+          onClick={handleSignInRedirect}
         >
-          Sign Up
+          Sign In
         </button>
       </div>
     </div>

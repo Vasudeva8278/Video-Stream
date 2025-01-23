@@ -57,22 +57,22 @@ const Signin = () => {
         justifyContent: "center",
         alignItems: "center",
         height: "100vh",
-        backgroundImage: "url('https://source.unsplash.com/1600x900/?social')",
+        backgroundImage: "url('https://www.futureanthem.com/hubfs/0425_Netflix_Netflix_3x2.webp')",
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
     >
       <div
         style={{
-          backgroundColor: "rgba(255, 255, 255, 0.9)",
+          backgroundColor: "rgba(0, 0, 0, 0.7)", // Dark semi-transparent background
           padding: "20px",
           borderRadius: "10px",
-          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.5)", // Shadow for glass effect
           width: "300px",
           textAlign: "center",
         }}
       >
-        <h2 style={{ marginBottom: "20px" }}>Sign Up</h2>
+        <h2 style={{ marginBottom: "20px", color: "white" }}>Sign Up</h2>
         <form onSubmit={handleSubmit}>
           <input
             type="text"

@@ -1,26 +1,31 @@
-// models/HistoryVideo.js
 const mongoose = require('mongoose');
 
-const historyVideoSchema = new mongoose.Schema(
-  {
-    title: {
-      type: String,
-      required: true,
-    },
-    description: {
-      type: String,
-      required: true,
-    },
-    source: {
-      type: String,
-      required: true, // Single source instead of an array
-    },
-    thumbnail: {
-      type: String,
-      required: true,
-    },
+const historyVideoSchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true, // Reference to the User who uploaded the video
   },
-  { timestamps: true } // Automatically adds createdAt and updatedAt fields
-);
+  title: {
+    type: String,
+    required: true,
+  },
+  description: {
+    type: String,
+    required: true,
+  },
+  source: {
+    type: String,
+    required: true,
+  },
+  thumbnail: {
+    type: String,
+    required: true,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+}, { timestamps: true });
 
 module.exports = mongoose.model('HistoryVideo', historyVideoSchema);

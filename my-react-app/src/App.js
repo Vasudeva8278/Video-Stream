@@ -1,50 +1,107 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
-import './App.css';
-import Header from './Nav/Header';
-import HomePage from './components/HomePage';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './auth/Login';
 import Signin from './auth/Signin';
-import History from './components/History';
-import Recomandation from './components/Recomandation';
+import Header from './Nav/Header';
 import Home from './components/Home';
+import History from './components/History';
+import Recommendation from './components/Recomandation';
+import PrivateRoute from './components/PrivateRoute';
 
-function App() {
-  // Add state to track authentication status
+const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [name, setName] = useState('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is authenticated (example with localStorage or sessionStorage)
-    const token = localStorage.getItem("token"); // Check if a valid token exists
-    if (token) {
-      setIsAuthenticated(true);
-    }
+    // Check authentication state on initial load
+    const authStatus = localStorage.getItem('isAuthenticated') === 'true';
+    const storedName = localStorage.getItem('name');
+    setIsAuthenticated(authStatus);
+    setName(storedName || '');
+    setLoading(false);
   }, []);
 
-  // PrivateRoute component to protect routes
-  const PrivateRoute = ({ element }) => {
-    return isAuthenticated ? element : <Navigate to="/login" />;
+  useEffect(() => {
+    // Sync state with localStorage whenever authentication changes
+    if (isAuthenticated) {
+      localStorage.setItem('isAuthenticated', 'true');
+      localStorage.setItem('name', name);
+    } else {
+      localStorage.removeItem('isAuthenticated');
+      localStorage.removeItem('name');
+    }
+  }, [isAuthenticated, name]);
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    setName('');
+    localStorage.clear(); // Clear all stored data
   };
+
+  if (loading) {
+    return <div>Loading...</div>; // Simple loading screen
+  }
 
   return (
     <Router>
-      <div className="App">
-        {/* Conditionally render Header based on authentication */}
-        {isAuthenticated && <Header />} {/* Display Header only if authenticated */}
-
-        <main>
-          <Routes> {/* Use Routes for routing */}
-            {/* Define routes for different pages */}
-            <Route path="/" element={<PrivateRoute element={<Home />} />} />  {/* HomePage route */}
-            <Route path="/login" element={<Login setIsAuthenticated={setIsAuthenticated} />} /> {/* Login route */}
-            <Route path="/signup" element={<Signin />} />   {/* Signin route */}
-            <Route path="/history" element={<PrivateRoute element={<History />} />} /> {/* History route */}
-            <Route path="/recommendations" element={<PrivateRoute element={<Recomandation />} />} /> {/* Recommendations route */}
-          </Routes>
-        </main>
-      </div>
+      {isAuthenticated && (
+        <Header
+          isAuthenticated={isAuthenticated}
+          name={name}
+          onLogout={handleLogout}
+        />
+      )}
+      <Routes>
+        <Route
+          path="/login"
+          element={
+            isAuthenticated ? (
+              <Navigate to="/" replace />
+            ) : (
+              <Login setIsAuthenticated={setIsAuthenticated} setName={setName} />
+            )
+          }
+        />
+        <Route
+          path="/signin"
+          element={
+            isAuthenticated ? (
+              <Navigate to="/" replace />
+            ) : (
+              <Signin setIsAuthenticated={setIsAuthenticated} setName={setName} />
+            )
+          }
+        />
+        <Route
+          path="/"
+          element={
+            <PrivateRoute isAuthenticated={isAuthenticated}>
+              <Home />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/history"
+          element={
+            <PrivateRoute isAuthenticated={isAuthenticated}>
+              <History />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/recommendation"
+          element={
+            <PrivateRoute isAuthenticated={isAuthenticated}>
+              <Recommendation />
+            </PrivateRoute>
+          }
+        />
+        {/* Fallback route for unmatched paths */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     </Router>
   );
-}
+};
 
 export default App;

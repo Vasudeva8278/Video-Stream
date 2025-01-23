@@ -1,51 +1,94 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 
-// Sample data array
-const videoData = [
-  {
-    "title": "Big Buck Bunny",
-    "description": "Big Buck Bunny tells the story of a giant rabbit with a heart bigger than himself. When one sunny day three rodents rudely harass him, something snaps... and the rabbit ain't no bunny anymore! In the typical cartoon tradition he prepares the nasty rodents a comical revenge.",
-    "sources": ["http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"],
-    "subtitle": "By Blender Foundation",
-    "thumb": "images/BigBuckBunny.jpg",
-    "category": "Movies",
-    "genre": "Animation",
-    "createdAt": "2025-01-23T00:00:00Z"
-  },
-  {
-    "title": "Elephant Dream",
-    "description": "The first Blender Open Movie from 2006",
-    "sources": ["http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"],
-    "subtitle": "By Blender Foundation",
-    "thumb": "images/ElephantsDream.jpg",
-    "category": "Movies",
-    "genre": "Animation",
-    "createdAt": "2025-01-23T00:00:00Z"
-  },
-  // Add more video data objects here
-];
 
 const History = () => {
+  const [videos, setVideos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedVideo, setSelectedVideo] = useState(null); // To handle the video preview
+
+  useEffect(() => {
+    const token = localStorage.getItem('jwtToken');
+    console.log('JWT Token:', token);
+    if (!token) {
+      setError('Please log in to view your video history.');
+      setLoading(false);
+      return;
+    }
+
+    const fetchVideos = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/history/videos', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        console.log('Videos retrieved successfully:', response.data);
+        setVideos(response.data.historyVideos);
+        setLoading(false);
+      } catch (error) {
+        setError('Failed to fetch video history. Please try again later.');
+        setLoading(false);
+      }
+    };
+
+    fetchVideos();
+  }, []);
+
+  if (loading) return <div className="loading">Loading...</div>;
+  if (error) return <div className="error">{error}</div>;
+
   return (
-    <div className="history">
-      <h1>Video History</h1>
-      <div className="video-list">
-        {videoData.map((video, index) => (
-          <div key={index} className="video-item">
-            <img src={video.thumb} alt={video.title} />
-            <div className="video-info">
-              <h2>{video.title}</h2>
-              <p>{video.description}</p>
-              <p><strong>Category:</strong> {video.category}</p>
-              <p><strong>Genre:</strong> {video.genre}</p>
-              <p><strong>Uploaded on:</strong> {new Date(video.createdAt).toLocaleDateString()}</p>
-              <a href={video.sources[0]} target="_blank" rel="noopener noreferrer">Watch Now</a>
+    <div className="my-orders-container" style={{marginLeft:"-20px"}}>
+      <h2>Your Video History</h2>
+      {videos.length === 0 ? (
+        <p>No videos found.</p>
+      ) : (
+        <div className="videos-list">
+          {videos.map((video) => (
+            <div key={video._id} className="video-card" style={{display:"flex"}}>
+              <img style={{width:"400px"}}
+                src={video.thumbnail}
+                alt={video.title}
+                className="video-thumbnail"
+              />
+              <div className="video-details" style={{marginLeft:"80px"}}>
+                <h3>{video.title}</h3>
+                <p>{video.description}</p>
+                <p>Date: {new Date(video.createdAt).toLocaleDateString()}</p>
+                <div className="video-actions">
+                  <button
+                    className="play-video"
+                    onClick={() => setSelectedVideo(video.source)}
+                  >
+                    Play Video
+                  </button>
+                </div>
+              </div>
             </div>
+          ))}
+        </div>
+      )}
+      {selectedVideo && (
+        <div className="video-preview">
+          <div className="preview-overlay" onClick={() => setSelectedVideo(null)}></div>
+          <div className="preview-container">
+            <button className="close-preview" onClick={() => setSelectedVideo(null)}>
+              Close
+            </button>
+            <video
+              src={selectedVideo}
+              controls
+              autoPlay
+              style={{ width: '400px', height: '300px' }}
+            />
           </div>
-        ))}
-      </div>
+        </div>
+      )}
     </div>
   );
-}
+};
 
 export default History;
