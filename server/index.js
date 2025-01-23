@@ -1,18 +1,35 @@
-// Import the Express module
+require('dotenv').config();
 const express = require('express');
+const mongoose = require('mongoose');
+const passport = require('passport');
+const session = require('express-session');
+require('./config/passport'); // Configure Passport
 
-// Initialize the Express application
+const authRoutes = require('./routes/authRoutes');
+const categoryRoutes = require('./routes/categoryRoutes');
+
 const app = express();
 
-// Define a port number
-const PORT = 5000;
+// Middleware
+app.use(express.json());
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+  })
+);
+app.use(passport.initialize());
+app.use(passport.session());
 
-// Set up a route for the root URL
-app.get('/', (req, res) => {
-    res.send('Welcome to My Express Server!');
-});
+// Routes
+app.use('/auth', authRoutes);
+app.use('/category', categoryRoutes);
 
-// Start the server
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-});
+// MongoDB Connection
+mongoose
+  .connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => {
+    app.listen(5000, () => console.log('Server running on http://localhost:5000'));
+  })
+  .catch((err) => console.error('MongoDB connection error:', err));
