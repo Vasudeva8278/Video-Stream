@@ -1,19 +1,50 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 
-const Login = () => {
+const Login = ({ setIsAuthenticated }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate(); // Initialize navigate
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    console.log("Login Attempt:", { email, password });
-    // Add your login logic here
+
+    try {
+      const response = await fetch("http://localhost:5000/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        // Store JWT token and user ID in local storage
+        localStorage.setItem("token", result.token); // Assuming the token is returned in result.token
+        localStorage.setItem("userId", result.userId); // Assuming the user ID is returned in result.userId
+
+        alert("Login successful!");
+        console.log("User data:", result);
+
+        // Set authentication status to true
+        setIsAuthenticated(true);
+
+        // Redirect to the home page or dashboard
+        navigate("/"); // Adjust to the path of your home page
+      } else {
+        alert("Error logging in: " + result.message);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("An error occurred. Please try again.");
+    }
   };
 
   const navigateToSignUp = () => {
     console.log("Navigating to Sign-Up page");
-    // Redirect to the Sign-Up page
-    window.location.href = "/signup"; // Adjust this path to your routing setup
+    navigate("/signup"); // Use navigate instead of window.location.href
   };
 
   return (
@@ -21,7 +52,8 @@ const Login = () => {
       style={{
         height: "100vh",
         width: "100vw",
-        backgroundImage: "url('https://img.freepik.com/premium-photo/video-game-is-set-be-released-year-june_605423-136442.jpg?w=1060')",
+        backgroundImage:
+          "url('https://img.freepik.com/premium-photo/video-game-is-set-be-released-year-june_605423-136442.jpg?w=1060')",
         backgroundSize: "cover",
         backgroundPosition: "center",
         display: "flex",

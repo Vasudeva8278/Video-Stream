@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import './css/HomePage.css'; // Import the CSS file
 
-const HomePage = () => {
+const Recomandation = () => {
   const [videos, setVideos] = useState([]);
   const [selectedVideo, setSelectedVideo] = useState(null);
 
@@ -27,7 +26,7 @@ const HomePage = () => {
 
   return (
     <div className="home-page">
-      <h1 className="page-title">HomePage - Videos</h1>
+      <h1 className="page-title">Your Recomandations</h1>
 
       <div className="video-grid">
         {videos.length > 0 ? (
@@ -50,6 +49,10 @@ const HomePage = () => {
               </div>
               <div className="video-info">
                 <h3 className="video-title">{video.title}</h3>
+          
+          
+          
+          
                 <p className="video-channel">Channel Name</p>
 
               </div>
@@ -75,4 +78,4 @@ const HomePage = () => {
   );
 };
 
-export default HomePage;
+export default Recomandation;

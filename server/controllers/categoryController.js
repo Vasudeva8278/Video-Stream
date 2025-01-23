@@ -1,82 +1,68 @@
 const Category = require('../models/Category');
 
+// Create a new category
 exports.createCategory = async (req, res) => {
-  const { name, subCategories } = req.body;
-
   try {
+    const { name, genre, videos } = req.body; // Destructure the request body
+
     const newCategory = new Category({
       name,
-      subCategories,
+      genre,
+      videos,
     });
 
-    await newCategory.save();
-    res.status(201).json({ message: 'Category created successfully', category: newCategory });
+    const savedCategory = await newCategory.save();
+    res.status(201).json(savedCategory); // Respond with the created category
   } catch (err) {
-    res.status(500).json({ error: 'Server error', details: err.message });
+    res.status(400).json({ message: 'Error creating category', error: err.message });
   }
 };
 
-
-exports.getCategories = async (req, res) => {
+// Get all categories with their videos
+exports.getAllCategories = async (req, res) => {
   try {
     const categories = await Category.find();
     res.status(200).json(categories);
   } catch (err) {
-    res.status(500).json({ error: 'Server error', details: err.message });
+    res.status(400).json({ message: err.message });
   }
 };
 
-
-exports.updateCategory = async (req, res) => {
-  const { id } = req.params;
-  const { name, subCategories } = req.body;
-
+// Get a specific category by ID with its videos
+exports.getCategoryById = async (req, res) => {
   try {
-    const updatedCategory = await Category.findByIdAndUpdate(
-      id,
-      { name, subCategories },
-      { new: true }
-    );
-
-    if (!updatedCategory) {
-      return res.status(404).json({ error: 'Category not found' });
+    const category = await Category.findById(req.params.id);
+    if (!category) {
+      return res.status(404).json({ message: 'Category not found' });
     }
-
-    res.status(200).json({ message: 'Category updated successfully', category: updatedCategory });
+    res.status(200).json(category);
   } catch (err) {
-    res.status(500).json({ error: 'Server error', details: err.message });
+    res.status(400).json({ message: err.message });
   }
 };
 
-
-exports.deleteCategory = async (req, res) => {
-  const { id } = req.params;
-
+// Update a category by ID
+exports.updateCategory = async (req, res) => {
   try {
-    const deletedCategory = await Category.findByIdAndDelete(id);
-
-    if (!deletedCategory) {
-      return res.status(404).json({ error: 'Category not found' });
+    const updatedCategory = await Category.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!updatedCategory) {
+      return res.status(404).json({ message: 'Category not found' });
     }
+    res.status(200).json(updatedCategory);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
 
+// Delete a category by ID
+exports.deleteCategory = async (req, res) => {
+  try {
+    const deletedCategory = await Category.findByIdAndDelete(req.params.id);
+    if (!deletedCategory) {
+      return res.status(404).json({ message: 'Category not found' });
+    }
     res.status(200).json({ message: 'Category deleted successfully' });
   } catch (err) {
-    res.status(500).json({ error: 'Server error', details: err.message });
-  }
-};
-
-exports.filterContent = async (req, res) => {
-  const { category, subCategory } = req.query;
-
-  try {
-    const query = {};
-
-    if (category) query.name = category;
-    if (subCategory) query['subCategories.name'] = subCategory;
-
-    const categories = await Category.find(query);
-    res.status(200).json(categories);
-  } catch (err) {
-    res.status(500).json({ error: 'Server error', details: err.message });
+    res.status(400).json({ message: err.message });
   }
 };
